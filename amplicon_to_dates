@@ -1,0 +1,25 @@
+library(tidyverse) ## we will mainly just use this package that contains also ggplot
+
+df <- read.csv("/Users/u_carrasquilla/Desktop/data_raw.csv",h=T) 
+df<-df[order(df$Date),] ## order by date
+original_df<-df ## to be used after for loop
+df$count<-1 # make column with just 1s to be able to count the number of times a haplotype appears
+
+original_unique<-df ## this is for the following plot of all unique haplotypes across all kids/timepoints
+
+df$Timepoint<-gsub("May 12",-1,df$Timepoint) ## timepoint -1 is May12, we will remove
+df$Timepoint<-gsub("May 13",13,df$Timepoint) ## timepoint 13 is May13
+df$cluster_name<-gsub("_","",df$cluster_name)
+
+
+df$Sample<-paste(df$ID,df$cluster_name,sep="_")
+df$ID<-NULL # delete kid column
+df$cluster_name<-NULL
+df$Sample<-gsub("\\.","",df$Sample)
+df <- df %>% filter(Timepoint!="MAL") %>%
+  distinct(Sample,Timepoint,count) %>%
+  spread(Sample,count)
+  
+df_sorted <- df[order(as.numeric(as.character(df$Timepoint))), ] ## order dates as numeric rather than 1, 10, 11 (this is something R does weirdly)
+df_sorted[is.na(df_sorted)] <- 0 ## Table fills missing values with NA but I want to change them to 0
+
