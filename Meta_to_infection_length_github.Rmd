@@ -1,0 +1,196 @@
+---
+title: "Plasmodium falciparum infection length from amplicon sequencing data"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub Documents
+
+This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+
+## Including Code
+
+You can include R code in the document as follows:
+
+```{r}
+
+library(tidyverse)
+
+```
+
+## Here we will start with the dataset described as supplementary table 6 
+
+```{r}
+
+df <- read.csv("data_raw.csv", header = TRUE, sep = ",")
+
+```
+
+Here make some edits to the table so that it is formatted 
+
+```{r}
+
+df<-df[order(df$Date),] ## order by date
+original_df<-df ## to be used after for loop
+df$count<-1 # make column with just 1s to be able to count the number of times a haplotype appears
+
+original_unique<-df ## this is for the following plot of all unique haplotypes across all kids/timepoints
+
+df$Timepoint<-gsub("May 12",-1,df$Timepoint) ## timepoint -1 is May12, we will remove
+df$Timepoint<-gsub("May 13",13,df$Timepoint) ## timepoint 13 is May13
+df$cluster_name<-gsub("_","",df$cluster_name)
+
+
+df$Sample<-paste(df$ID,df$cluster_name,sep="_")
+df$ID<-NULL # delete kid column
+df$cluster_name<-NULL
+df$Sample<-gsub("\\.","",df$Sample)
+df <- df %>% filter(Timepoint!="MAL") %>%
+  distinct(Sample,Timepoint,count) %>%
+  spread(Sample,count)
+  
+df_sorted <- df[order(as.numeric(as.character(df$Timepoint))), ] ## order dates as numeric rather than 1, 10, 11 (this is something R does weirdly)
+df_sorted[is.na(df_sorted)] <- 0 ## Table fills missing values with NA but I want to change them to 0
+
+```
+
+
+For loop to read within the chunks and allow for a certain number of skips in between positive timepoints. Adjust the number of skips by using max_zeroes
+
+```{r}
+
+df_length<-list()
+
+
+## Make an empty list where I will add the chunks of timepoint when a haplotype is present. Remember to run this empty list before the for loop
+
+#### This is a for loop that finds in the matrix of 0 and 1, chunks of 1s allowing TWO or FOUR SKIPS ####
+
+max_zeroes = 2 ## Here add the number of zeros corresponding to the desired number of skips in-between timepoints
+
+for (name in colnames(df_sorted[,-1])){
+  values = df_sorted[[name]]
+  # start/end of a chunk
+  start<-NA
+  end<-NA
+  # how many zeroes encountered since
+  # the start or a chunk
+  num_zeroes<-0
+  # container for start/end
+  chunks<-list()
+  # signpost for last seen 1
+  last_one_seen<-NA
+  
+  for (index in 1:length(values)){
+   # print(c(name, index, length(values)))
+    if (index!= length(values)){
+      
+      value=values[index]
+      if(value == 0){
+        
+        # are we inside a chunk?
+        if(!is.na(start)){
+          
+          num_zeroes = num_zeroes + 1
+          # have we found a zero already?
+          if(num_zeroes > max_zeroes){
+            # end of a chunk
+            end = index - 1 - max_zeroes
+            chunks<-append(chunks,list(c(start, end)))
+            
+            # reset
+            start<-NA
+            end<-NA
+            num_zeroes<-0
+          }
+        }
+      }
+      else {
+        # is this the start of a chunk?
+        if(is.na(start)){
+          start<-index
+        }
+        # reset the number of zeroes found
+        num_zeroes<-0
+        last_one_seen<-index
+      }
+    }
+  }
+  # handle last data point
+  value=values[length(values)]
+  # are we inside a chunk?
+  if(!is.na(start)){
+    # is the last value zero?
+    if(value == 0){
+      # chunk ends at the last 1 seen
+      end = last_one_seen
+      chunks<-append(chunks,list(c(start, end)))
+    }
+    else {
+      # chunk ends at last position
+      end = length(values)
+      chunks<-append(chunks,list(c(start, end)))
+      start<-NA
+      end<-NA
+    }
+  }
+  else {
+    if(value==1){
+    #  print(name)
+      chunks<-append(chunks,list(c(length(values),length(values))))
+    }
+  }
+  
+  x=str_split(name,"_")
+  Kid<-x[[1]][1]
+  cluster_name<-x[[1]][2]
+  for (chunk in chunks){
+    start=df_sorted$Timepoint[chunk[1]]
+    end=df_sorted$Timepoint[chunk[2]]
+    df_length<-append(df_length,list(c(Kid,cluster_name,start,end)))
+  }
+}
+
+
+## Now we just make our list containing lists (chunks) into a dataframe with columns kid, haplotype, start and end ##
+df_length  <-  as.data.frame(matrix(unlist(df_length), nrow=length(unlist(df_length[1]))))
+df_length<-t(df_length)
+colnames(df_length)<-c("ID","Haplotype","Start","End")
+df_length<-as.data.frame(df_length)
+
+## To be able to map to the original dates, I will first change to the original timepoints, so only changing -1 and 13 for May12 and May13, respectively
+
+df_length$Start<-gsub("13","May13",df_length$Start)
+df_length$End<-gsub("-1","May12",df_length$End)
+df_length$Start<-gsub("-1","May12",df_length$Start)
+df_length$End<-gsub("13","May13",df_length$End)
+
+### Add metadata 
+
+original_unique<-original_df[,c(2,3,6)]
+dup<-duplicated(original_unique[,c(1,2,3)])
+original_unique<-original_unique[!dup,]
+#original_unique$Kid<-gsub("kali","Kali",original_unique$Kid)
+
+### This is more formatting of the data frame and matching to the original dates in the full database form above ###
+
+df_length$kid_start<-paste(df_length$ID,df_length$Start,sep="-")
+df_length$kid_end<-paste(df_length$ID,df_length$End,sep="-")
+
+colnames(original_unique)<-c("ID","Timepoint","Date")
+original_unique$Sample<-paste(original_unique$ID,original_unique$Timepoint,sep="-")
+
+df_length<-merge(original_unique,df_length,by.x=c("Sample"),by.y=c("kid_start"))
+colnames(df_length)<-gsub("Date","start_date",colnames(df_length))
+ colnames(df_length)<-gsub("ID","kid_start",colnames(df_length))
+df_length<-merge(original_unique,df_length,by.x=c("Sample"),by.y=c("kid_end"))
+colnames(df_length)<-gsub("Date","end_date",colnames(df_length))
+colnames(df_length)<-gsub("ID","kid_end",colnames(df_length))
+
+df_length$kid_start.x <- NULL
+df_length$kid_start.y <- NULL
+```
+
