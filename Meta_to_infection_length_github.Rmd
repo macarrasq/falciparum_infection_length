@@ -9,11 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 Data Preparation
-Load and format the raw data, which corresponds to Supplementary Table 6.
-
-## Including Code
-
-You can include R code in the document as follows:
+Load and format the raw data which contains the raw read counts per haplotype per timepoint for each individual in the study (data_raw.csv), which corresponds to Supplementary Table 6.
 
 ```{r}
 
