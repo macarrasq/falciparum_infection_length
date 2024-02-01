@@ -1,15 +1,15 @@
 ---
-title: "Plasmodium falciparum infection length from amplicon sequencing data"
+title: "Plasmodium falciparum Infection Duration Analysis from ama1 Amplicon Sequencing Data"
 output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
-## GitHub Documents
-
-This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+Data Preparation
+Load and format the raw data, which corresponds to Supplementary Table 6.
 
 ## Including Code
 
