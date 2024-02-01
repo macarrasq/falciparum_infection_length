@@ -25,7 +25,7 @@ library(tidyverse)
 
 ```{r}
 
-df <- read.csv("data_raw.csv", header = TRUE, sep = ",")
+df <- read.csv("data_raw.csv", header = TRUE, sep = ",") ## This is the same as supplementary table 6. It is important to have the haplotype column (cluster_name), timepoint and ID for each kid in the cohort. 
 
 ```
 
@@ -34,7 +34,7 @@ Here make some edits to the table so that it is formatted
 ```{r}
 
 df<-df[order(df$Date),] ## order by date
-original_df<-df ## to be used after for loop
+original_df<-df ## to be used after for-loop
 df$count<-1 # make column with just 1s to be able to count the number of times a haplotype appears
 
 original_unique<-df ## this is for the following plot of all unique haplotypes across all kids/timepoints
