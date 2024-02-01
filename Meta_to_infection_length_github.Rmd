@@ -46,6 +46,7 @@ df_sorted[is.na(df_sorted)] <- 0 ## Table fills missing values with NA so change
 ```
 
 ### Timepoint Chunk Analysis
+
 Determine infection duration by identifying contiguous chunks of timepoints where a haplotype is present.
 For-loop to read within the chunks and allow for a certain number of skips in between positive timepoints. 
 Change the number of skips by adjusting max_zeroes accordingly
@@ -157,9 +158,11 @@ df_length<-as.data.frame(df_length)
 ```
 
 ### Date Mapping and Metadata Addition
+
 Map the identified chunks to original dates and incorporate metadata.
 
 ```{r}
+
 # Map original dates to the identified chunks
 
 df_length$Start<-gsub("13","May13",df_length$Start)
