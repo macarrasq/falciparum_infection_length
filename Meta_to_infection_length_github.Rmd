@@ -8,21 +8,40 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```
 
-Data Preparation
+### Data Preparation
 Load and format the raw data which contains the raw read counts per haplotype per timepoint for each individual in the study (data_raw.csv), which corresponds to Supplementary Table 6.
+
 
 ```{r}
 
 library(tidyverse)
 
-# Read the raw data from CSV file
+#### Read the raw data from CSV file
 df <- read.csv("data_raw.csv", header = TRUE, sep = ",")
 
-# Perform necessary data formatting and clean-up
+### Perform necessary data formatting and clean-up
+
 df <- df[order(df$Date),]
 original_df <- df
-df$count <- 1
-# Additional data cleaning steps...
+df$count <- 1 # Add counter
+
+original_unique<-df ## this is for the following plot of all unique haplotypes across all kids/timepoints
+
+df$Timepoint<-gsub("May 12",-1,df$Timepoint) ## timepoint -1 is May12, we will remove
+df$Timepoint<-gsub("May 13",13,df$Timepoint) ## timepoint 13 is May13
+df$cluster_name<-gsub("_","",df$cluster_name)
+
+
+df$Sample<-paste(df$ID,df$cluster_name,sep="_")
+df$ID<-NULL # delete kid column
+df$cluster_name<-NULL
+df$Sample<-gsub("\\.","",df$Sample)
+df <- df %>% filter(Timepoint!="MAL") %>%
+  distinct(Sample,Timepoint,count) %>%
+  spread(Sample,count)
+  
+df_sorted <- df[order(as.numeric(as.character(df$Timepoint))), ] ## order dates as numeric rather than 1, 10, 11 (this is something R does weirdly)
+df_sorted[is.na(df_sorted)] <- 0 ## Table fills missing values with NA but I want to change them to 0
 
 ```
 
