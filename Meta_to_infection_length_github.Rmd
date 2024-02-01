@@ -40,7 +40,7 @@ df <- df %>% filter(Timepoint!="MAL") %>%
   distinct(Sample,Timepoint,count) %>%
   spread(Sample,count)
   
-df_sorted <- df[order(as.numeric(as.character(df$Timepoint))), ] ## order dates as numeric rather than 1, 10, 11 (this is something R does weirdly)
+df_sorted <- df[order(as.numeric(as.character(df$Timepoint))), ] ## order dates as numeric 
 df_sorted[is.na(df_sorted)] <- 0 ## Table fills missing values with NA but I want to change them to 0
 
 ```
