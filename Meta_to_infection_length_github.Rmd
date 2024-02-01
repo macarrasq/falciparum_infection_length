@@ -59,11 +59,13 @@ df_length<-list()
 
 #### This is a for loop that finds in the matrix of 0 and 1, chunks of 1s allowing TWO or FOUR SKIPS ####
 
-max_zeroes = 2 ## Here add the number of zeros corresponding to the desired number of skips in-between timepoints
+max_zeroes = 2 # Adjust as needed for the desired number of skips between positive timepoints
+
+# Loop through each haplotype and find chunks of contiguous timepoints
 
 for (name in colnames(df_sorted[,-1])){
   values = df_sorted[[name]]
-  # start/end of a chunk
+  # Initialize variables for chunk identification
   start<-NA
   end<-NA
   # how many zeroes encountered since
@@ -133,7 +135,7 @@ for (name in colnames(df_sorted[,-1])){
       chunks<-append(chunks,list(c(length(values),length(values))))
     }
   }
-  
+  # Extract Kid and cluster_name from haplotype name  
   x=str_split(name,"_")
   Kid<-x[[1]][1]
   cluster_name<-x[[1]][2]
@@ -145,33 +147,42 @@ for (name in colnames(df_sorted[,-1])){
 }
 
 
-## Now we just make our list containing lists (chunks) into a dataframe with columns kid, haplotype, start and end ##
+# Transform the list of chunks into a data frame
+
 df_length  <-  as.data.frame(matrix(unlist(df_length), nrow=length(unlist(df_length[1]))))
 df_length<-t(df_length)
 colnames(df_length)<-c("ID","Haplotype","Start","End")
 df_length<-as.data.frame(df_length)
 
-## To be able to map to the original dates, I will first change to the original timepoints, so only changing -1 and 13 for May12 and May13, respectively
+```
+
+### Date Mapping and Metadata Addition
+Map the identified chunks to original dates and incorporate metadata.
+
+```{r}
+# Map original dates to the identified chunks
 
 df_length$Start<-gsub("13","May13",df_length$Start)
 df_length$End<-gsub("-1","May12",df_length$End)
 df_length$Start<-gsub("-1","May12",df_length$Start)
 df_length$End<-gsub("13","May13",df_length$End)
 
-### Add metadata 
+# Extract relevant columns from the original data for metadata addition
 
 original_unique<-original_df[,c(2,3,6)]
 dup<-duplicated(original_unique[,c(1,2,3)])
 original_unique<-original_unique[!dup,]
 #original_unique$Kid<-gsub("kali","Kali",original_unique$Kid)
 
-### This is more formatting of the data frame and matching to the original dates in the full database form above ###
+# Combine metadata with the identified chunks
 
 df_length$kid_start<-paste(df_length$ID,df_length$Start,sep="-")
 df_length$kid_end<-paste(df_length$ID,df_length$End,sep="-")
 
 colnames(original_unique)<-c("ID","Timepoint","Date")
 original_unique$Sample<-paste(original_unique$ID,original_unique$Timepoint,sep="-")
+
+# Merge with original data based on Sample column
 
 df_length<-merge(original_unique,df_length,by.x=c("Sample"),by.y=c("kid_start"))
 colnames(df_length)<-gsub("Date","start_date",colnames(df_length))
