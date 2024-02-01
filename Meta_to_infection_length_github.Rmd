@@ -15,6 +15,15 @@ Load and format the raw data which contains the raw read counts per haplotype pe
 
 library(tidyverse)
 
+# Read the raw data from CSV file
+df <- read.csv("data_raw.csv", header = TRUE, sep = ",")
+
+# Perform necessary data formatting and clean-up
+df <- df[order(df$Date),]
+original_df <- df
+df$count <- 1
+# Additional data cleaning steps...
+
 ```
 
 ## Here we will start with the dataset described as supplementary table 6 
