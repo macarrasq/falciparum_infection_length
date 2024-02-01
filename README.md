@@ -1,3 +1,2 @@
-# Infection length determination of Plasmodium falciparum clones from amplicon sequencing data of a highly polymorphic antigen (Ama1)
-Infection length using amplicon sequencing longitudinal data 
-We have determined the longth of individual P. falciparum clones within individuals over time. The type of data was obtained through longitudinal sampling of children throughout one transmission season 
+# Infection length determination of Plasmodium falciparum clones from amplicon sequencing data
+This file presents an R Markdown analysis for determining the duration of Plasmodium falciparum infection based on amplicon sequencing data of a highly polymorphic gene (apical-membrane protein 1 or ama1). The analysis involves processing the data obtained from amplicon sequencing and implements different numbers of skips (e.g. how many timepoints are allowed of an ama1 clone to be absent to still consider it a longitudinal infection rather than a reinfection). 
