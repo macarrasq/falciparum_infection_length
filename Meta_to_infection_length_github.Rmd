@@ -25,7 +25,7 @@ df <- df[order(df$Date),]
 original_df <- df
 df$count <- 1 # Add counter
 
-original_unique<-df ## this is for the following plot of all unique haplotypes across all kids/timepoints
+original_unique<-df ## this is for the following plot of all unique haplotypes across all individuals/timepoints
 
 df$Timepoint<-gsub("May 12",-1,df$Timepoint) ## timepoint -1 is May12, we will remove
 df$Timepoint<-gsub("May 13",13,df$Timepoint) ## timepoint 13 is May13
