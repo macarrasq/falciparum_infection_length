@@ -27,7 +27,7 @@ df$count <- 1 # Add counter
 
 original_unique<-df ## this is for the following plot of all unique haplotypes across all individuals/timepoints
 
-df$Timepoint<-gsub("May 12",-1,df$Timepoint) ## timepoint -1 is May12, we will remove
+df$Timepoint<-gsub("May 12",-1,df$Timepoint) ## timepoint -1 is May12, we exclude this timepoint from the analysis
 df$Timepoint<-gsub("May 13",13,df$Timepoint) ## timepoint 13 is May13
 df$cluster_name<-gsub("_","",df$cluster_name)
 
@@ -40,18 +40,12 @@ df <- df %>% filter(Timepoint!="MAL") %>%
   distinct(Sample,Timepoint,count) %>%
   spread(Sample,count)
   
-df_sorted <- df[order(as.numeric(as.character(df$Timepoint))), ] ## order dates as numeric 
-df_sorted[is.na(df_sorted)] <- 0 ## Table fills missing values with NA but I want to change them to 0
+df_sorted <- df[order(as.numeric(as.character(df$Timepoint))), ] ## order timepoints as numeric 
+df_sorted[is.na(df_sorted)] <- 0 ## Table fills missing values with NA so change them all to 0
 
 ```
 
-## Here we will start with the dataset described as supplementary table 6 
 
-```{r}
-
-df <- read.csv("data_raw.csv", header = TRUE, sep = ",") ## This is the same as supplementary table 6. It is important to have the haplotype column (cluster_name), timepoint and ID for each kid in the cohort. 
-
-```
 
 Here make some edits to the table so that it is formatted 
 
