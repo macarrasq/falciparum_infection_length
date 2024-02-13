@@ -170,5 +170,7 @@ df_length$End<-gsub("-1","May12",df_length$End)
 df_length$Start<-gsub("-1","May12",df_length$Start)
 df_length$End<-gsub("13","May13",df_length$End)
 
+## This gives a final data frame which has a start and an end column indicating the timepoint of detection of a clone and the last timepoint where it is detected, using the different skips which can be modified accordingly. WIth this table, the dates can be added as needed and the days between timepoints can be calculated.
+
 ```
 
