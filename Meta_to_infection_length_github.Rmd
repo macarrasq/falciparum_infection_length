@@ -170,31 +170,5 @@ df_length$End<-gsub("-1","May12",df_length$End)
 df_length$Start<-gsub("-1","May12",df_length$Start)
 df_length$End<-gsub("13","May13",df_length$End)
 
-# Extract relevant columns from the original data for metadata addition
-
-original_unique<-original_df[,c(2,3,6)]
-dup<-duplicated(original_unique[,c(1,2,3)])
-original_unique<-original_unique[!dup,]
-#original_unique$Kid<-gsub("kali","Kali",original_unique$Kid)
-
-# Combine metadata with the identified chunks
-
-df_length$kid_start<-paste(df_length$ID,df_length$Start,sep="-")
-df_length$kid_end<-paste(df_length$ID,df_length$End,sep="-")
-
-colnames(original_unique)<-c("ID","Timepoint","Date")
-original_unique$Sample<-paste(original_unique$ID,original_unique$Timepoint,sep="-")
-
-# Merge with original data based on Sample column
-
-df_length<-merge(original_unique,df_length,by.x=c("Sample"),by.y=c("kid_start"))
-colnames(df_length)<-gsub("Date","start_date",colnames(df_length))
- colnames(df_length)<-gsub("ID","kid_start",colnames(df_length))
-df_length<-merge(original_unique,df_length,by.x=c("Sample"),by.y=c("kid_end"))
-colnames(df_length)<-gsub("Date","end_date",colnames(df_length))
-colnames(df_length)<-gsub("ID","kid_end",colnames(df_length))
-
-df_length$kid_start.x <- NULL
-df_length$kid_start.y <- NULL
 ```
 
